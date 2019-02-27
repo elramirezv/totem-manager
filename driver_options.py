@@ -1,11 +1,9 @@
-
 from selenium.webdriver.chrome.options import Options
+import os
 
-chromedriver_path = r"/home/alekhan/trabajo/TotemManager/chromedriver"
-
+cwd = os.getcwd()
+chromedriver_path = r"{}/chromedriver".format(cwd)
 
 options = Options()
-# options.headless = True
-# options.add_argument("--headless")
 options.add_argument("--kiosk")
 options.add_argument("--disable-infobars")

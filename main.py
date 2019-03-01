@@ -59,12 +59,16 @@ class Window(QWidget):
         menu.show()
 
     def display_back_button(self, layout):
+        self.back_label = QLabel("Regresar", layout)
+        self.back_label.setGeometry(col4, row7, 3*col, row)
+        self.back_label.setFont(QFont("Sans", 35))
         self.back_button = QPushButton("",layout)
         self.back_button.setGeometry(col1, row7, 3*col, 3*col)
         self.back_button.setIcon(QIcon("images/back.png"))
         self.back_button.setIconSize(QSize(col, col))
         self.back_button.setStyleSheet("background: transparent");
         self.back_button.clicked.connect(lambda: self.go_back(layout))
+        self.back_label.show()
         self.back_button.show()
 
     def go_back(self, layout):
@@ -75,7 +79,7 @@ class Window(QWidget):
         self.url_layout = QGroupBox(self)
         self.url_layout.setFixedSize(col10, row10)
         self.web_label = QLabel("Inserte URL de su página web", self.url_layout)
-        self.web_label.setGeometry(col1, row3, col10, row)
+        self.web_label.setGeometry(0, row3, col10, row)
         self.web_label.setStyleSheet("text-align: center")
         self.web_label.setFont(QFont("Sans", 35))
         self.web_name = QLineEdit("", self.url_layout)
@@ -90,11 +94,10 @@ class Window(QWidget):
     def small_screen(self, layout):
         self.count = []
         self.setGeometry(col9, row9, col, row)
+        self.setWindowOpacity(0)
         layout.hide()
         self.small_button = QPushButton("", self)
         self.small_button.setGeometry(0, 0, col, row)
-        self.small_button.setAttribute(Qt.WA_NoSystemBackground, True)
-        self.small_button.setAttribute(Qt.WA_TranslucentBackground, True)
         self.small_button.clicked.connect(self.addNumber)
         self.small_button.show()
 
@@ -102,6 +105,7 @@ class Window(QWidget):
         self.count.append(1)
         if len(self.count) >= 3:
             self.setGeometry(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
+            self.setWindowOpacity(1)
             self.small_button.hide()
             self.url_layout.show()
             self.chrome_driver.close()

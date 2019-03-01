@@ -28,28 +28,28 @@ class Window(QWidget):
     def setting_main_menu(self):
         self.url_main_button = QPushButton("", self.main_layout)
         self.url_main_button.setGeometry(col1, row3, 4*col, 4*col)
-        self.url_main_button.setIcon(QIcon("images/item1.png"))
+        self.url_main_button.setIcon(QIcon("images/web_url.png"))
         self.url_main_button.setIconSize(QSize(4*col, 4*col))
         self.url_main_button.setStyleSheet("background: transparent");
         self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
         self.videos_main_button = QPushButton("", self.main_layout)
         self.videos_main_button.setGeometry(col5, row3, 4*col, 4*col)
-        self.videos_main_button.setIcon(QIcon("images/item1.png"))
+        self.videos_main_button.setIcon(QIcon("images/videos.png"))
         self.videos_main_button.setIconSize(QSize(4*col, 4*col))
         self.videos_main_button.setStyleSheet("background: transparent");
         self.videos_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
         self.images_main_button = QPushButton("", self.main_layout)
         self.images_main_button.setGeometry(col1, row6-100, 4*col, 4*col)
-        self.images_main_button.setIcon(QIcon("images/item1.png"))
+        self.images_main_button.setIcon(QIcon("images/fotos.png"))
         self.images_main_button.setIconSize(QSize(4*col, 4*col))
         self.images_main_button.setStyleSheet("background: transparent");
         self.images_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
         self.ads_main_button = QPushButton("", self.main_layout)
         self.ads_main_button.setGeometry(col5, row6-100, 4*col, 4*col)
-        self.ads_main_button.setIcon(QIcon("images/item1.png"))
+        self.ads_main_button.setIcon(QIcon("images/ads.png"))
         self.ads_main_button.setIconSize(QSize(4*col, 4*col))
         self.ads_main_button.setStyleSheet("background: transparent");
         self.ads_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
@@ -59,8 +59,11 @@ class Window(QWidget):
         menu.show()
 
     def display_back_button(self, layout):
-        self.back_button = QPushButton("Volver",layout)
-        self.back_button.setGeometry(col1, row8, col, row)
+        self.back_button = QPushButton("",layout)
+        self.back_button.setGeometry(col1, row7, 2*col, 2*row)
+        self.back_button.setIcon(QIcon("images/back.png"))
+        self.back_button.setIconSize(QSize(3*col, 3*col))
+        self.back_button.setStyleSheet("background: transparent");
         self.back_button.clicked.connect(lambda: self.go_back(layout))
         self.back_button.show()
 

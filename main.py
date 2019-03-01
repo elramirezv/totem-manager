@@ -60,7 +60,7 @@ class Window(QWidget):
 
     def display_back_button(self, layout):
         self.back_button = QPushButton("",layout)
-        self.back_button.setGeometry(col1, row7, 2*col, 2*row)
+        self.back_button.setGeometry(col1, row7, 2*row, 2*row)
         self.back_button.setIcon(QIcon("images/back.png"))
         self.back_button.setIconSize(QSize(3*col, 3*col))
         self.back_button.setStyleSheet("background: transparent");

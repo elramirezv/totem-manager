@@ -14,7 +14,7 @@ class Window(QWidget):
 
     def __init__(self, parent = None):
         super().__init__(parent)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.background = QLabel(self)
         self.background.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -60,8 +60,8 @@ class Window(QWidget):
 
     def display_back_button(self, layout):
         self.back_label = QLabel("Regresar", layout)
-        self.back_label.setGeometry(col4, row7, 3*col, row)
-        self.back_label.setFont(QFont("Sans", 35))
+        self.back_label.setGeometry(col2+60, row7+10, 3*col, row)
+        self.back_label.setFont(QFont("Sans", 20))
         self.back_button = QPushButton("",layout)
         self.back_button.setGeometry(col1, row7, 3*col, 3*col)
         self.back_button.setIcon(QIcon("images/back.png"))
@@ -91,11 +91,23 @@ class Window(QWidget):
         self.accept_button.clicked.connect(lambda: self.openBrowser(self.web_name.text()))
         self.display_back_button(self.url_layout)
 
-    def small_screen(self, layout):
+
+    def openBrowser(self, name):
+        self.web_name.setText("")
+        self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
+        self.chrome_driver.get("https://"+name)
+        self.small_icon = SmallScreen(driver = self.chrome_driver)
+        self.small_icon.show()
+
+
+class SmallScreen(QWidget):
+    def __init__(self, driver=None, parent = None):
+        super().__init__(parent)
+        self.setWindowOpacity(0.1)
+        self.setGeometry(col10, row10, col, row)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.chrome_driver = driver
         self.count = []
-        self.setGeometry(col9, row9, col, row)
-        self.setWindowOpacity(0)
-        layout.hide()
         self.small_button = QPushButton("", self)
         self.small_button.setGeometry(0, 0, col, row)
         self.small_button.clicked.connect(self.addNumber)
@@ -104,17 +116,12 @@ class Window(QWidget):
     def addNumber(self):
         self.count.append(1)
         if len(self.count) >= 3:
-            self.setGeometry(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
-            self.setWindowOpacity(1)
-            self.small_button.hide()
-            self.url_layout.show()
-            self.chrome_driver.close()
+            self.close()
+            if self.chrome_driver:
+                self.chrome_driver.close()
 
-    def openBrowser(self, name):
-        self.web_name.setText("")
-        self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
-        self.chrome_driver.get("https://"+name)
-        self.small_screen(self.url_layout)
+
+
 
 
 if __name__ == "__main__":

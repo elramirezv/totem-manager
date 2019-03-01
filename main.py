@@ -60,9 +60,9 @@ class Window(QWidget):
 
     def display_back_button(self, layout):
         self.back_button = QPushButton("",layout)
-        self.back_button.setGeometry(col1, row7, 2*col, 2*col)
+        self.back_button.setGeometry(col1, row7, 3*col, 3*col)
         self.back_button.setIcon(QIcon("images/back.png"))
-        self.back_button.setIconSize(QSize(2*col, 2*col))
+        self.back_button.setIconSize(QSize(col, col))
         self.back_button.setStyleSheet("background: transparent");
         self.back_button.clicked.connect(lambda: self.go_back(layout))
         self.back_button.show()
@@ -93,6 +93,8 @@ class Window(QWidget):
         layout.hide()
         self.small_button = QPushButton("", self)
         self.small_button.setGeometry(0, 0, col, row)
+        self.small_button.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.small_button.setAttribute(Qt.WA_TranslucentBackground, True)
         self.small_button.clicked.connect(self.addNumber)
         self.small_button.show()
 
@@ -105,6 +107,7 @@ class Window(QWidget):
             self.chrome_driver.close()
 
     def openBrowser(self, name):
+        self.web_name.setText("")
         self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
         self.chrome_driver.get("https://"+name)
         self.small_screen(self.url_layout)

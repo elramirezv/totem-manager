@@ -14,6 +14,7 @@ class Window(QWidget):
 
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.background = QLabel(self)
         self.background.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -73,9 +74,10 @@ class Window(QWidget):
         self.web_label = QLabel("Inserte URL de su página web", self.url_layout)
         self.web_label.setGeometry(col1, row3, col10, row)
         self.web_label.setStyleSheet("text-align: center")
-        self.web_label.setFont(QFont("Sans", 40))
+        self.web_label.setFont(QFont("Sans", 35))
         self.web_name = QLineEdit("", self.url_layout)
         self.web_name.setGeometry(col2, row4, col*4, row/2)
+        self.web_name.setFont(QFont("Sans", 20))
         self.web_name.setPlaceholderText("Ejemplo: www.gooogle.com")
         self.accept_button = QPushButton("Aceptar", self.url_layout)
         self.accept_button.setGeometry(col6, row4, col*2, row/2)
@@ -93,7 +95,6 @@ class Window(QWidget):
 
     def addNumber(self):
         self.count.append(1)
-        print(self.count)
         if len(self.count) >= 3:
             self.setGeometry(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
             self.small_button.hide()

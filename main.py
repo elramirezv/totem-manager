@@ -9,6 +9,7 @@ from constants import *
 import time
 from selenium import webdriver
 from driver_options import options, chromedriver_path
+import time
 
 class Window(QWidget):
 
@@ -78,14 +79,14 @@ class Window(QWidget):
     def setting_url_menu(self):
         self.url_layout = QGroupBox(self)
         self.url_layout.setFixedSize(col10, row10)
-        self.web_label = QLabel("Inserte URL de su página web", self.url_layout)
-        self.web_label.setGeometry(0, row3, col10, row)
+        self.web_label = QLabel("Escribe el URL de tu página web", self.url_layout)
+        self.web_label.setGeometry(col1, row3, col10, row)
         self.web_label.setStyleSheet("text-align: center")
         self.web_label.setFont(QFont("Sans", 35))
         self.web_name = QLineEdit("", self.url_layout)
         self.web_name.setGeometry(col2, row4, col*4, row/2)
         self.web_name.setFont(QFont("Sans", 20))
-        self.web_name.setPlaceholderText("Ejemplo: www.gooogle.com")
+        self.web_name.setPlaceholderText("Ej: www.google.com")
         self.accept_button = QPushButton("Aceptar", self.url_layout)
         self.accept_button.setGeometry(col6, row4, col*2, row/2)
         self.accept_button.clicked.connect(lambda: self.openBrowser(self.web_name.text()))
@@ -98,12 +99,13 @@ class Window(QWidget):
         self.chrome_driver.get("https://"+name)
         self.small_icon = SmallScreen(driver = self.chrome_driver)
         self.small_icon.show()
+        self.small_icon.activateWindow()
 
 
 class SmallScreen(QWidget):
     def __init__(self, driver=None, parent = None):
         super().__init__(parent)
-        self.setWindowOpacity(0.1)
+        self.setWindowOpacity(0.05)
         self.setGeometry(col10, row10, col, row)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.chrome_driver = driver
@@ -114,11 +116,17 @@ class SmallScreen(QWidget):
         self.small_button.show()
 
     def addNumber(self):
+        if len(self.count) == 0:
+            self.begin = time.time()
         self.count.append(1)
-        if len(self.count) >= 3:
-            self.close()
-            if self.chrome_driver:
-                self.chrome_driver.close()
+        if len(self.count) >= 5:
+            if time.time() - self.begin > 10:
+                self.count = []
+                self.begin = time.time()
+            else:
+                self.close()
+                if self.chrome_driver:
+                    self.chrome_driver.close()
 
 
 

@@ -10,7 +10,6 @@ import time
 from selenium import webdriver
 from driver_options import options, chromedriver_path
 
-
 class Window(QWidget):
 
     def __init__(self, parent = None):
@@ -21,60 +20,90 @@ class Window(QWidget):
         self.background.setPixmap(QPixmap("images/background.png").scaled(SCREEN_WIDTH, SCREEN_HEIGHT))
         self.main_layout = QGroupBox(self)
         self.main_layout.setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.display_main_menu()
+        self.setting_main_menu()
         self.show()
+        self.setting_url_menu()
 
-    def display_main_menu(self):
+    def setting_main_menu(self):
         self.url_main_button = QPushButton("", self.main_layout)
         self.url_main_button.setGeometry(col1, row3, 4*col, 4*col)
         self.url_main_button.setIcon(QIcon("images/item1.png"))
         self.url_main_button.setIconSize(QSize(4*col, 4*col))
         self.url_main_button.setStyleSheet("background: transparent");
-        self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.display_url_menu))
+        self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
-        self.url_main_button = QPushButton("", self.main_layout)
-        self.url_main_button.setGeometry(col5, row3, 4*col, 4*col)
-        self.url_main_button.setIcon(QIcon("images/item1.png"))
-        self.url_main_button.setIconSize(QSize(4*col, 4*col))
-        self.url_main_button.setStyleSheet("background: transparent");
-        self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.display_url_menu))
+        self.videos_main_button = QPushButton("", self.main_layout)
+        self.videos_main_button.setGeometry(col5, row3, 4*col, 4*col)
+        self.videos_main_button.setIcon(QIcon("images/item1.png"))
+        self.videos_main_button.setIconSize(QSize(4*col, 4*col))
+        self.videos_main_button.setStyleSheet("background: transparent");
+        self.videos_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
-        self.url_main_button = QPushButton("", self.main_layout)
-        self.url_main_button.setGeometry(col1, row6-100, 4*col, 4*col)
-        self.url_main_button.setIcon(QIcon("images/item1.png"))
-        self.url_main_button.setIconSize(QSize(4*col, 4*col))
-        self.url_main_button.setStyleSheet("background: transparent");
-        self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.display_url_menu))
+        self.images_main_button = QPushButton("", self.main_layout)
+        self.images_main_button.setGeometry(col1, row6-100, 4*col, 4*col)
+        self.images_main_button.setIcon(QIcon("images/item1.png"))
+        self.images_main_button.setIconSize(QSize(4*col, 4*col))
+        self.images_main_button.setStyleSheet("background: transparent");
+        self.images_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
-        self.url_main_button = QPushButton("", self.main_layout)
-        self.url_main_button.setGeometry(col5, row6-100, 4*col, 4*col)
-        self.url_main_button.setIcon(QIcon("images/item1.png"))
-        self.url_main_button.setIconSize(QSize(4*col, 4*col))
-        self.url_main_button.setStyleSheet("background: transparent");
-        self.url_main_button.clicked.connect(lambda: self.hide_main_menu(self.display_url_menu))
+        self.ads_main_button = QPushButton("", self.main_layout)
+        self.ads_main_button.setGeometry(col5, row6-100, 4*col, 4*col)
+        self.ads_main_button.setIcon(QIcon("images/item1.png"))
+        self.ads_main_button.setIconSize(QSize(4*col, 4*col))
+        self.ads_main_button.setStyleSheet("background: transparent");
+        self.ads_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
     def hide_main_menu(self, menu):
         self.main_layout.hide()
-        menu()
+        menu.show()
 
+    def display_back_button(self, layout):
+        self.back_button = QPushButton("Volver",layout)
+        self.back_button.setGeometry(col1, row8, col, row)
+        self.back_button.clicked.connect(lambda: self.go_back(layout))
+        self.back_button.show()
 
-    def display_url_menu(self):
+    def go_back(self, layout):
+        layout.hide()
+        self.main_layout.show()
+
+    def setting_url_menu(self):
         self.url_layout = QGroupBox(self)
         self.url_layout.setFixedSize(col10, row10)
-        self.web_label = QLabel("Inserte URL de su página web: ", self.url_layout)
-        self.web_label.setGeometry(col2, row3, col, row/2)
+        self.web_label = QLabel("Inserte URL de su página web", self.url_layout)
+        self.web_label.setGeometry(col1, row3, col10, row)
+        self.web_label.setStyleSheet("text-align: center")
+        self.web_label.setFont(QFont("Sans", 40))
         self.web_name = QLineEdit("", self.url_layout)
-        self.web_name.setGeometry(col4, row3, col*2, row/2)
+        self.web_name.setGeometry(col2, row4, col*4, row/2)
+        self.web_name.setPlaceholderText("Ejemplo: www.gooogle.com")
         self.accept_button = QPushButton("Aceptar", self.url_layout)
-        self.accept_button.setGeometry(col6, row3, col*2, row/2)
+        self.accept_button.setGeometry(col6, row4, col*2, row/2)
         self.accept_button.clicked.connect(lambda: self.openBrowser(self.web_name.text()))
-        self.url_layout.show()
+        self.display_back_button(self.url_layout)
 
+    def small_screen(self, layout):
+        self.count = []
+        self.setGeometry(col9, row9, col, row)
+        layout.hide()
+        self.small_button = QPushButton("", self)
+        self.small_button.setGeometry(0, 0, col, row)
+        self.small_button.clicked.connect(self.addNumber)
+        self.small_button.show()
+
+    def addNumber(self):
+        self.count.append(1)
+        print(self.count)
+        if len(self.count) >= 3:
+            self.setGeometry(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
+            self.small_button.hide()
+            self.url_layout.show()
+            self.chrome_driver.close()
 
     def openBrowser(self, name):
-        print(self.web_name.text())
         self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
         self.chrome_driver.get("https://"+name)
+        self.small_screen(self.url_layout)
 
 
 if __name__ == "__main__":

@@ -3,13 +3,15 @@ from PyQt5.QtGui import QPixmap, QTransform, QCursor, QIcon, QImage, QBrush, \
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
     QCoreApplication
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
-    QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox
+    QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
 from PyQt5.Qt import QTest, QTransform, QSound
+from clases import SmallScreen
 from constants import *
 import time
 from selenium import webdriver
 from driver_options import options, chromedriver_path
-import time
+import subprocess
+import os
 
 class Window(QWidget):
 
@@ -25,8 +27,10 @@ class Window(QWidget):
         self.setting_main_menu()
         self.show()
         self.setting_url_menu()
+        self.setting_photos_menu()
 
     def setting_main_menu(self):
+        # Setea todos los botones del menú principal (solamente los crea)
         self.url_main_button = QPushButton("", self.main_layout)
         self.url_main_button.setGeometry(col1, row3, 4*col, 4*col)
         self.url_main_button.setIcon(QIcon("images/web_url.png"))
@@ -46,7 +50,7 @@ class Window(QWidget):
         self.images_main_button.setIcon(QIcon("images/fotos.png"))
         self.images_main_button.setIconSize(QSize(4*col, 4*col))
         self.images_main_button.setStyleSheet("background: transparent");
-        self.images_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
+        self.images_main_button.clicked.connect(lambda: self.hide_main_menu(self.photo_layout))
 
         self.ads_main_button = QPushButton("", self.main_layout)
         self.ads_main_button.setGeometry(col5, row6-100, 4*col, 4*col)
@@ -56,10 +60,13 @@ class Window(QWidget):
         self.ads_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
     def hide_main_menu(self, menu):
+        # Se llama cada vez que se aprieta algún botón del menu principal.
+        # Esconde el main y abre el que fue presionado.
         self.main_layout.hide()
         menu.show()
 
     def display_back_button(self, layout):
+        # Este método despliega el botón de ir hacia atrás en cualquier pagina
         self.back_label = QLabel("Regresar", layout)
         self.back_label.setGeometry(col2+60, row7+10, 3*col, row)
         self.back_label.setFont(QFont("Sans", 20))
@@ -77,6 +84,7 @@ class Window(QWidget):
         self.main_layout.show()
 
     def setting_url_menu(self):
+        # Setea el layout del web_url menu
         self.url_layout = QGroupBox(self)
         self.url_layout.setFixedSize(col10, row10)
         self.web_label = QLabel("Escribe el URL de tu página web", self.url_layout)
@@ -92,6 +100,38 @@ class Window(QWidget):
         self.accept_button.clicked.connect(lambda: self.openBrowser(self.web_name.text()))
         self.display_back_button(self.url_layout)
 
+    def setting_photos_menu(self):
+        # Setea el layout del photos menu
+        self.photo_layout = QGroupBox(self)
+        self.photo_layout.setFixedSize(col10, row10)
+        self.web_label = QLabel("Selecciona la carpeta de fotos", self.photo_layout)
+        self.web_label.setGeometry(col1, row3, col10, row)
+        self.web_label.setStyleSheet("text-align: center")
+        self.web_label.setFont(QFont("Sans", 35))
+        self.load_button = QPushButton("Cargar", self.photo_layout)
+        self.load_button.setGeometry(col6, row4, col*2, row/2)
+        self.load_button.clicked.connect(self.load_media)
+        self.display_back_button(self.photo_layout)
+
+    def load_media(self):
+        ddir = QFileDialog.getExistingDirectory(self)
+        files = [name for name in os.listdir(str(ddir))]
+
+    def display_slideshow(self):
+        '''
+        Ojo este método solo funciona en Mac :(
+        '''
+        # Este método setea el driver de chrome y luego corre el 'script.sh' para abrir
+        # una nueva terminal, luego ejecuta 'app.py' en el puerto 5000 donde se encuentra el carrusel
+        self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
+        cwd = os.getcwd()
+        script_path = r"{}/script.sh".format(cwd)
+        subprocess.call(script_path)
+        QTest.qWait(2000)
+        self.chrome_driver.get("http://localhost:5000/")
+        self.small_icon = SmallScreen(driver = self.chrome_driver)
+        self.small_icon.show()
+        self.small_icon.activateWindow()
 
     def openBrowser(self, name):
         self.web_name.setText("")
@@ -100,34 +140,6 @@ class Window(QWidget):
         self.small_icon = SmallScreen(driver = self.chrome_driver)
         self.small_icon.show()
         self.small_icon.activateWindow()
-
-
-class SmallScreen(QWidget):
-    def __init__(self, driver=None, parent = None):
-        super().__init__(parent)
-        self.setWindowOpacity(0.05)
-        self.setGeometry(col10, row10, col, row)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.chrome_driver = driver
-        self.count = []
-        self.small_button = QPushButton("", self)
-        self.small_button.setGeometry(0, 0, col, row)
-        self.small_button.clicked.connect(self.addNumber)
-        self.small_button.show()
-
-    def addNumber(self):
-        if len(self.count) == 0:
-            self.begin = time.time()
-        self.count.append(1)
-        if len(self.count) >= 5:
-            if time.time() - self.begin > 10:
-                self.count = []
-                self.begin = time.time()
-            else:
-                self.close()
-                if self.chrome_driver:
-                    self.chrome_driver.close()
-
 
 
 

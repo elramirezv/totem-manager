@@ -5,7 +5,7 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
     QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
 from PyQt5.Qt import QTest, QTransform, QSound
-from clases import SmallScreen
+from clases import SmallScreen, VideoScreen
 from constants import *
 import time
 from selenium import webdriver

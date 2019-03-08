@@ -60,30 +60,6 @@ class Window(QWidget):
         self.ads_main_button.setStyleSheet("background: transparent");
         self.ads_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
 
-    def hide_main_menu(self, menu):
-        # Se llama cada vez que se aprieta algún botón del menu principal.
-        # Esconde el main y abre el que fue presionado.
-        self.main_layout.hide()
-        menu.show()
-
-    def display_back_button(self, layout):
-        # Este método despliega el botón de ir hacia atrás en cualquier pagina
-        self.back_label = QLabel("Regresar", layout)
-        self.back_label.setGeometry(col2+60, row7+10, 3*col, row)
-        self.back_label.setFont(QFont("Sans", 20))
-        self.back_button = QPushButton("",layout)
-        self.back_button.setGeometry(col1, row7, 3*col, 3*col)
-        self.back_button.setIcon(QIcon("images/back.png"))
-        self.back_button.setIconSize(QSize(col, col))
-        self.back_button.setStyleSheet("background: transparent");
-        self.back_button.clicked.connect(lambda: self.go_back(layout))
-        self.back_label.show()
-        self.back_button.show()
-
-    def go_back(self, layout):
-        layout.hide()
-        self.main_layout.show()
-
     def setting_url_menu(self):
         # Setea el layout del web_url menu
         self.url_layout = QGroupBox(self)
@@ -102,7 +78,7 @@ class Window(QWidget):
         self.display_back_button(self.url_layout)
 
     def setting_photos_menu(self):
-        # Setea el layout del photos menu
+        # Setea el layout del menu de fotos
         self.photo_layout = QGroupBox(self)
         self.photo_layout.setFixedSize(col10, row10)
         self.web_label = QLabel("Selecciona la carpeta de fotos", self.photo_layout)
@@ -112,10 +88,14 @@ class Window(QWidget):
         self.load_button = QPushButton("Cargar", self.photo_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
         self.load_button.clicked.connect(self.load_media)
+        self.play_button = QPushButton("Reproducir", self.photo_layout)
+        self.play_button.setGeometry(col6, row6, col*2, row/2)
+        self.play_button.clicked.connect(self.display_video_player)
+        self.play_button.hide()
         self.display_back_button(self.photo_layout)
 
     def setting_videos_menu(self):
-        # Setea el layout del photos menu
+        # Setea el layout del menu de videos
         self.video_layout = QGroupBox(self)
         self.video_layout.setFixedSize(col10, row10)
         self.web_label = QLabel("Selecciona la carpeta de video/s", self.video_layout)
@@ -125,11 +105,37 @@ class Window(QWidget):
         self.load_button = QPushButton("Cargar", self.video_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
         self.load_button.clicked.connect(self.load_media)
-        self.play_button = QPushButton("Reproducir", self.video_layout)
-        self.play_button.setGeometry(col6, row6, col*2, row/2)
-        self.play_button.clicked.connect(self.display_video_player)
-        self.play_button.hide()
+        self.slideshow_button = QPushButton("Reproducir", self.photo_layout)
+        self.slideshow_button.setGeometry(col6, row6, col*2, row/2)
+        self.slideshow_button.clicked.connect(self.display_slideshow)
+        self.slideshow_button.hide()
         self.display_back_button(self.video_layout)
+
+    def hide_main_menu(self, menu):
+        # Se llama cada vez que se aprieta algún botón del menu principal.
+        # Esconde el main y abre el que fue presionado.
+        self.main_layout.hide()
+        menu.show()
+
+    def display_back_button(self, layout):
+        # Este método despliega el botón de volver al menú principal en cualquier pagina
+        # Es llamado en todas las páginas del programa.
+        self.back_label = QLabel("Regresar", layout)
+        self.back_label.setGeometry(col2+60, row7+10, 3*col, row)
+        self.back_label.setFont(QFont("Sans", 20))
+        self.back_button = QPushButton("",layout)
+        self.back_button.setGeometry(col1, row7, 3*col, 3*col)
+        self.back_button.setIcon(QIcon("images/back.png"))
+        self.back_button.setIconSize(QSize(col, col))
+        self.back_button.setStyleSheet("background: transparent");
+        self.back_button.clicked.connect(lambda: self.go_back(layout))
+        self.back_label.show()
+        self.back_button.show()
+
+    def go_back(self, layout):
+        layout.hide()
+        self.main_layout.show()
+
 
     def display_video_player(self):
         self.video_player = VideoScreen(self.ddir)
@@ -150,7 +156,10 @@ class Window(QWidget):
         self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
         cwd = os.getcwd()
         script_path = r"{}/script.sh".format(cwd)
+        # Esta funcion es la que abre la segunda terminal, aquí se le debería entregar a la app
+        # la ubicación de donde se encuentren las fotos (self.ddir)
         subprocess.call(script_path)
+        # QWait para que se alcance a cargar el servidor de app.py
         QTest.qWait(2000)
         self.chrome_driver.get("http://localhost:5000/")
         self.small_icon = SmallScreen(driver = self.chrome_driver)

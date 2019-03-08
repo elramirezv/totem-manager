@@ -1,14 +1,21 @@
 from flask import Flask
 from flask import render_template
 import os
+import sys
 
+'''
+La idea es recibir en los args el path de la ubicación de las fotos y decirle a la aplicación
+que vaya a buscar las fotos a ese lugar
 
-app = Flask(__name__, static_url_path='/static')
+'''
+path = sys.argv[1]
+app = Flask(__name__, static_url_path=path)
 
 
 @app.route('/')
-def hello_world():
-    images = os.listdir("static/images")
+def index():
+    images = ["{}/{}".format(ddir,name) for name in os.listdir(str(path)) if name.endswith(".jpg")]
+    # render_template va a buscar a la carpeta 'templates' por default
     return render_template('index.html', images=images)
 
 

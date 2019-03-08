@@ -105,10 +105,10 @@ class Window(QWidget):
         self.load_button = QPushButton("Cargar", self.video_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
         self.load_button.clicked.connect(self.load_media)
-        self.slideshow_button = QPushButton("Reproducir", self.photo_layout)
-        self.slideshow_button.setGeometry(col6, row6, col*2, row/2)
-        self.slideshow_button.clicked.connect(self.display_slideshow)
-        self.slideshow_button.hide()
+        self.play_button = QPushButton("Reproducir", self.photo_layout)
+        self.play_button.setGeometry(col6, row6, col*2, row/2)
+        self.play_button.clicked.connect(self.display_slideshow)
+        self.play_button.hide()
         self.display_back_button(self.video_layout)
 
     def hide_main_menu(self, menu):

@@ -40,35 +40,25 @@ class SmallScreen(QWidget):
                     self.chrome_driver.close()
 
 
-class VideoScreen(QtWidgets.QWidget):
+class VideoScreen(QWidget):
     '''
     Esta clase representa el reproductor de videos del programa
     '''
-    def __init__(self, layout, parent = None):
+    def __init__(self, ddir, parent = None):
         super().__init__(parent)
         self.setGeometry(0, 0, col10, row10)
-        self.current_video = QtMultimediaWidgets.QVideoWidget()
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.clips = ["{}/{}".format(ddir,name) for name in os.listdir(str(ddir)) if name.endswith(".mp4")]
+        self.video_widget = QtMultimediaWidgets.QVideoWidget()
         self.player = QtMultimedia.QMediaPlayer()
-        self.player.setVideoOutput(self.current_video)
-        self.layout = layout
-        self.layout.addWidget(self.current_video)
-        self.player.mediaStatusChanged.connect(self.handleMediaStateChanged)
-
-
+        self.player.setVideoOutput(self.video_widget)
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.video_widget)
+        self.playlist = QtMultimedia.QMediaPlaylist()
+        self.addMedia()
+        self.playlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
+        self.player.setPlaylist(self.playlist)
+        
     def addMedia(self):
-        ddir = QFileDialog.getExistingDirectory(self)
-        video_files = ["videos/{}".format(name) for name in os.listdir(str(ddir))]
-        for video in videos_files:
-            video_path = os.path.abspath(video)
-            self.player.setMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(video_path)))
-
-    # def handlePositionChanged(self, pos):
-    #     if (0 <= self._index < len(self._clips) and
-    #         pos > self._clips[self._index][1] and
-    #         self.player.state() == QtMultimedia.QMediaPlayer.PlayingState):
-    #         self.playNext()
-    #
-    #
-    # def handleMediaStateChanged(self, state):
-    #     if state == QtMultimedia.QMediaPlayer.LoadedMedia:
-    #         self.playNext()
+        for clip in self.clips:
+            self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))

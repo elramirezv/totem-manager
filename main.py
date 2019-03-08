@@ -27,6 +27,7 @@ class Window(QWidget):
         self.setting_main_menu()
         self.show()
         self.setting_url_menu()
+        self.setting_videos_menu()
         self.setting_photos_menu()
 
     def setting_main_menu(self):
@@ -43,7 +44,7 @@ class Window(QWidget):
         self.videos_main_button.setIcon(QIcon("images/videos.png"))
         self.videos_main_button.setIconSize(QSize(4*col, 4*col))
         self.videos_main_button.setStyleSheet("background: transparent");
-        self.videos_main_button.clicked.connect(lambda: self.hide_main_menu(self.url_layout))
+        self.videos_main_button.clicked.connect(lambda: self.hide_main_menu(self.video_layout))
 
         self.images_main_button = QPushButton("", self.main_layout)
         self.images_main_button.setGeometry(col1, row6-100, 4*col, 4*col)
@@ -113,9 +114,32 @@ class Window(QWidget):
         self.load_button.clicked.connect(self.load_media)
         self.display_back_button(self.photo_layout)
 
+    def setting_videos_menu(self):
+        # Setea el layout del photos menu
+        self.video_layout = QGroupBox(self)
+        self.video_layout.setFixedSize(col10, row10)
+        self.web_label = QLabel("Selecciona la carpeta de video/s", self.video_layout)
+        self.web_label.setGeometry(col1, row3, col10, row)
+        self.web_label.setStyleSheet("text-align: center")
+        self.web_label.setFont(QFont("Sans", 35))
+        self.load_button = QPushButton("Cargar", self.video_layout)
+        self.load_button.setGeometry(col6, row4, col*2, row/2)
+        self.load_button.clicked.connect(self.load_media)
+        self.play_button = QPushButton("Reproducir", self.video_layout)
+        self.play_button.setGeometry(col6, row6, col*2, row/2)
+        self.play_button.clicked.connect(self.display_video_player)
+        self.play_button.hide()
+        self.display_back_button(self.video_layout)
+
+    def display_video_player(self):
+        self.video_player = VideoScreen(self.ddir)
+        self.video_player.show()
+        self.video_player.player.play()
+
+
     def load_media(self):
-        ddir = QFileDialog.getExistingDirectory(self)
-        files = [name for name in os.listdir(str(ddir))]
+        self.ddir = QFileDialog.getExistingDirectory(self)
+        self.play_button.show()
 
     def display_slideshow(self):
         '''

@@ -9,12 +9,13 @@ que vaya a buscar las fotos a ese lugar
 
 '''
 path = sys.argv[1]
-app = Flask(__name__, static_url_path=path)
+app = Flask(__name__)
+
 
 
 @app.route('/')
 def index():
-    images = ["{}/{}".format(ddir,name) for name in os.listdir(str(path)) if name.endswith(".jpg")]
+    images = ['/static/' + name for name in os.listdir(str(path)) if name.endswith(".jpg") or name.endswith(".png")]
     # render_template va a buscar a la carpeta 'templates' por default
     return render_template('index.html', images=images)
 

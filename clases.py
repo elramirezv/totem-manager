@@ -8,6 +8,7 @@ from PyQt5.Qt import QTest, QTransform, QSound
 from PyQt5 import QtMultimedia, QtMultimediaWidgets
 from constants import *
 import os
+import time
 
 class SmallScreen(QWidget):
     '''
@@ -58,7 +59,7 @@ class VideoScreen(QWidget):
         self.addMedia()
         self.playlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
         self.player.setPlaylist(self.playlist)
-        
+
     def addMedia(self):
         for clip in self.clips:
             self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))

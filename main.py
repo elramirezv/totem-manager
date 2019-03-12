@@ -12,6 +12,8 @@ from selenium import webdriver
 from driver_options import options, chromedriver_path
 import subprocess
 import os
+import shutil
+import stat
 
 class Window(QWidget):
 
@@ -90,7 +92,7 @@ class Window(QWidget):
         self.load_button.clicked.connect(self.load_media)
         self.play_button = QPushButton("Reproducir", self.photo_layout)
         self.play_button.setGeometry(col6, row6, col*2, row/2)
-        self.play_button.clicked.connect(self.display_video_player)
+        self.play_button.clicked.connect(self.display_slideshow)
         self.play_button.hide()
         self.display_back_button(self.photo_layout)
 
@@ -105,9 +107,9 @@ class Window(QWidget):
         self.load_button = QPushButton("Cargar", self.video_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
         self.load_button.clicked.connect(self.load_media)
-        self.play_button = QPushButton("Reproducir", self.photo_layout)
+        self.play_button = QPushButton("Reproducir", self.video_layout)
         self.play_button.setGeometry(col6, row6, col*2, row/2)
-        self.play_button.clicked.connect(self.display_slideshow)
+        self.play_button.clicked.connect(self.display_video_player)
         self.play_button.hide()
         self.display_back_button(self.video_layout)
 
@@ -145,20 +147,19 @@ class Window(QWidget):
 
     def load_media(self):
         self.ddir = QFileDialog.getExistingDirectory(self)
+        cwd = os.getcwd()
+        subprocess.Popen('del /q "{}/static"'.format(cwd), stdout=subprocess.PIPE, shell=True)
+        subprocess.Popen('xcopy "{}" "{}/static" /E'.format(self.ddir, cwd), stdout=subprocess.PIPE)
         self.play_button.show()
 
     def display_slideshow(self):
-        '''
-        Ojo este método solo funciona en Mac :(
-        '''
         # Este método setea el driver de chrome y luego corre el 'script.sh' para abrir
         # una nueva terminal, luego ejecuta 'app.py' en el puerto 5000 donde se encuentra el carrusel
         self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
-        cwd = os.getcwd()
-        script_path = r"{}/script.sh".format(cwd)
         # Esta funcion es la que abre la segunda terminal, aquí se le debería entregar a la app
         # la ubicación de donde se encuentren las fotos (self.ddir)
-        subprocess.call(script_path)
+        cwd = os.getcwd()
+        subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
         # QWait para que se alcance a cargar el servidor de app.py
         QTest.qWait(2000)
         self.chrome_driver.get("http://localhost:5000/")

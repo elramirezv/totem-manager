@@ -89,11 +89,11 @@ class Window(QWidget):
         self.web_label.setFont(QFont("Sans", 35))
         self.load_button = QPushButton("Cargar", self.photo_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
-        self.load_button.clicked.connect(self.load_media)
-        self.play_button = QPushButton("Reproducir", self.photo_layout)
-        self.play_button.setGeometry(col6, row6, col*2, row/2)
-        self.play_button.clicked.connect(self.display_slideshow)
-        self.play_button.hide()
+        self.load_button.clicked.connect(self.load_photos)
+        self.photo_play_button = QPushButton("Reproducir", self.photo_layout)
+        self.photo_play_button.setGeometry(col6, row6, col*2, row/2)
+        self.photo_play_button.clicked.connect(self.display_slideshow)
+        self.photo_play_button.hide()
         self.display_back_button(self.photo_layout)
 
     def setting_videos_menu(self):
@@ -106,11 +106,11 @@ class Window(QWidget):
         self.web_label.setFont(QFont("Sans", 35))
         self.load_button = QPushButton("Cargar", self.video_layout)
         self.load_button.setGeometry(col6, row4, col*2, row/2)
-        self.load_button.clicked.connect(self.load_media)
-        self.play_button = QPushButton("Reproducir", self.video_layout)
-        self.play_button.setGeometry(col6, row6, col*2, row/2)
-        self.play_button.clicked.connect(self.display_video_player)
-        self.play_button.hide()
+        self.load_button.clicked.connect(self.load_video)
+        self.video_play_button = QPushButton("Reproducir", self.video_layout)
+        self.video_play_button.setGeometry(col6, row6, col*2, row/2)
+        self.video_play_button.clicked.connect(self.display_video_player)
+        self.video_play_button.hide()
         self.display_back_button(self.video_layout)
 
     def hide_main_menu(self, menu):
@@ -145,12 +145,18 @@ class Window(QWidget):
         self.video_player.player.play()
 
 
-    def load_media(self):
+    def load_photos(self):
         self.ddir = QFileDialog.getExistingDirectory(self)
         cwd = os.getcwd()
         subprocess.Popen('del /q "{}/static"'.format(cwd), stdout=subprocess.PIPE, shell=True)
         subprocess.Popen('xcopy "{}" "{}/static" /E'.format(self.ddir, cwd), stdout=subprocess.PIPE)
-        self.play_button.show()
+        self.video_play_button.hide()
+        self.photo_play_button.show()
+
+    def load_video(self):
+        self.ddir = QFileDialog.getExistingDirectory(self)
+        self.video_play_button.show()
+        self.photo_play_button.hide()
 
     def display_slideshow(self):
         # Este método setea el driver de chrome y luego corre el 'script.sh' para abrir

@@ -142,6 +142,9 @@ class Window(QWidget):
     def display_video_player(self):
         self.video_player = VideoScreen(self.ddir)
         self.video_player.show()
+        self.small_icon = SmallScreen(driver=self.video_player)
+        self.small_icon.show()
+        self.small_icon.activateWindow()
         self.video_player.player.play()
 
 

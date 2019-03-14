@@ -20,7 +20,7 @@ class SmallScreen(QWidget):
         self.setWindowOpacity(0.05)
         self.setGeometry(col9, row9, col, row)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.chrome_driver = driver
+        self.driver = driver
         self.count = []
         self.small_button = QPushButton("", self)
         self.small_button.setGeometry(0, 0, col, row)
@@ -37,8 +37,11 @@ class SmallScreen(QWidget):
                 self.begin = time.time()
             else:
                 self.close()
-                if self.chrome_driver:
-                    self.chrome_driver.close()
+                if self.driver:
+                    if isinstance(self.driver, QWidget):
+                        self.driver.player.stop()
+                        self.driver.video_widget.close()
+                    self.driver.close()
 
 
 class VideoScreen(QWidget):
@@ -49,12 +52,15 @@ class VideoScreen(QWidget):
         super().__init__(parent)
         self.setGeometry(0, 0, col10, row10)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute( Qt.WA_NoSystemBackground, True)
         self.clips = ["{}/{}".format(ddir,name) for name in os.listdir(str(ddir)) if name.endswith(".mp4")]
         self.video_widget = QtMultimediaWidgets.QVideoWidget()
+        self.video_widget.setGeometry(0, 0, col10, row10)
         self.player = QtMultimedia.QMediaPlayer()
         self.player.setVideoOutput(self.video_widget)
         layout = QVBoxLayout(self)
         layout.addWidget(self.video_widget)
+        layout.setGeometry(0, 0, col10, row10)
         self.playlist = QtMultimedia.QMediaPlaylist()
         self.addMedia()
         self.playlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)

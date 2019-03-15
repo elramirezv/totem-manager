@@ -5,7 +5,7 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
     QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
 from PyQt5.Qt import QTest, QTransform, QSound
-from clases import SmallScreen, VideoScreen
+from clases import SmallScreen, VideoScreen, WebBrowser
 from constants import *
 import time
 from selenium import webdriver
@@ -16,7 +16,6 @@ import shutil
 import stat
 
 class Window(QWidget):
-
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -116,6 +115,7 @@ class Window(QWidget):
     def hide_main_menu(self, menu):
         # Se llama cada vez que se aprieta algún botón del menu principal.
         # Esconde el main y abre el que fue presionado.
+        self.web_name.setText("")
         self.main_layout.hide()
         menu.show()
 
@@ -178,13 +178,16 @@ class Window(QWidget):
 
     def openBrowser(self, name):
         self.web_name.setText("")
-        self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
-        self.chrome_driver.get("https://"+name)
-        self.small_icon = SmallScreen(driver = self.chrome_driver)
-        self.small_icon.show()
-        self.small_icon.activateWindow()
-
-
+        
+        if name != "":
+            self.browser_window = QMainWindow()
+            self.browser_window.setGeometry(0,0,col10,row10)
+            self.web_browser = WebBrowser("https://"+name)
+            self.browser_window.setCentralWidget(self.web_browser)
+            self.browser_window.show()
+            self.small_icon = SmallScreen(self.web_browser)
+            self.small_icon.show()
+            self.small_icon.activateWindow()
 
 
 if __name__ == "__main__":

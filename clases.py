@@ -4,8 +4,10 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
     QCoreApplication, QUrl
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
     QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
-from PyQt5.Qt import QTest, QTransform, QSound
+from PyQt5.Qt import QTest, QTransform
 from PyQt5 import QtMultimedia, QtMultimediaWidgets
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from constants import *
 import os
 import time
@@ -60,7 +62,6 @@ class VideoScreen(QWidget):
         self.player.setVideoOutput(self.video_widget)
         layout = QVBoxLayout(self)
         layout.addWidget(self.video_widget)
-        layout.setGeometry(0, 0, col10, row10)
         self.playlist = QtMultimedia.QMediaPlaylist()
         self.addMedia()
         self.playlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
@@ -69,3 +70,16 @@ class VideoScreen(QWidget):
     def addMedia(self):
         for clip in self.clips:
             self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))
+
+
+class WebBrowser(QWebEngineView):
+    def __init__(self, url, parent=None):
+        super().__init__(parent)
+        self.url = url
+        self.load(QUrl(self.url))
+        self.show()
+        self.urlChanged.connect(self.url_change)
+
+    def url_change(self, e):
+        if self.url not in e.host():
+            self.load(QUrl(self.url))

@@ -40,10 +40,13 @@ class SmallScreen(QWidget):
             else:
                 self.close()
                 if self.driver:
-                    if isinstance(self.driver, QWidget):
-                        self.driver.player.stop()
-                        self.driver.video_widget.close()
-                    self.driver.close()
+                    try:
+                        if isinstance(self.driver, QWidget):
+                            self.driver.player.stop()
+                            self.driver.video_widget.close()
+                        self.driver.close()
+                    except:
+                        self.driver.close()
 
 
 class VideoScreen(QWidget):
@@ -76,10 +79,12 @@ class WebBrowser(QWebEngineView):
     def __init__(self, url, parent=None):
         super().__init__(parent)
         self.url = url
+        self.cute_url = self.url.replace("https://", "")
+        self.cute_url = self.cute_url.replace("http://", "")
         self.load(QUrl(self.url))
         self.show()
         self.urlChanged.connect(self.url_change)
 
     def url_change(self, e):
-        if self.url not in e.host():
+        if self.cute_url not in e.host():
             self.load(QUrl(self.url))

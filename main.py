@@ -178,14 +178,14 @@ class Window(QWidget):
 
     def openBrowser(self, name):
         self.web_name.setText("")
-        
+
         if name != "":
             self.browser_window = QMainWindow()
             self.browser_window.setGeometry(0,0,col10,row10)
             self.web_browser = WebBrowser("https://"+name)
             self.browser_window.setCentralWidget(self.web_browser)
             self.browser_window.show()
-            self.small_icon = SmallScreen(self.web_browser)
+            self.small_icon = SmallScreen(self.browser_window)
             self.small_icon.show()
             self.small_icon.activateWindow()
 

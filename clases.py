@@ -78,6 +78,7 @@ class VideoScreen(QWidget):
 class WebBrowser(QWebEngineView):
     def __init__(self, url, parent=None):
         super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.url = url
         self.cute_url = self.url.replace("https://", "")
         self.cute_url = self.cute_url.replace("http://", "")

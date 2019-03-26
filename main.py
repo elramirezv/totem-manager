@@ -162,23 +162,21 @@ class Window(QWidget):
         self.photo_play_button.hide()
 
     def display_slideshow(self):
-        # Este método setea el driver de chrome y luego corre el 'script.sh' para abrir
-        # una nueva terminal, luego ejecuta 'app.py' en el puerto 5000 donde se encuentra el carrusel
-        self.chrome_driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
-        # Esta funcion es la que abre la segunda terminal, aquí se le debería entregar a la app
-        # la ubicación de donde se encuentren las fotos (self.ddir)
         cwd = os.getcwd()
         subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
         # QWait para que se alcance a cargar el servidor de app.py
-        QTest.qWait(2000)
-        self.chrome_driver.get("http://localhost:5000/")
-        self.small_icon = SmallScreen(driver = self.chrome_driver)
+        QTest.qWait(1000)
+        self.slideshow_window = QMainWindow()
+        self.slideshow_window.setGeometry(0,0,col10,row10)
+        self.slideshow_browser = WebBrowser("http://localhost:5000/")
+        self.slideshow_window.setCentralWidget(self.slideshow_browser)
+        self.slideshow_window.show()
+        self.small_icon = SmallScreen(driver=self.slideshow_window)
         self.small_icon.show()
         self.small_icon.activateWindow()
 
     def openBrowser(self, name):
         self.web_name.setText("")
-
         if name != "":
             self.browser_window = QMainWindow()
             self.browser_window.setGeometry(0,0,col10,row10)

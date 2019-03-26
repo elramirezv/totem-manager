@@ -17,12 +17,12 @@ class SmallScreen(QWidget):
     Esta clase representa la pantalla pequeña que se crea para poder volver al programa
     si esque así fuera necesario.
     '''
-    def __init__(self, driver= None, parent = None):
+    def __init__(self, driver=None, parent = None):
         super().__init__(parent)
         self.setWindowOpacity(0.05)
         self.setGeometry(col9, row9, col, row)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.driver = driver
+        self.browser = driver
         self.count = []
         self.small_button = QPushButton("", self)
         self.small_button.setGeometry(0, 0, col, row)
@@ -39,14 +39,14 @@ class SmallScreen(QWidget):
                 self.begin = time.time()
             else:
                 self.close()
-                if self.driver:
+                if self.browser:
                     try:
-                        if isinstance(self.driver, QWidget):
-                            self.driver.player.stop()
-                            self.driver.video_widget.close()
-                        self.driver.close()
+                        if isinstance(self.browser, QWidget):
+                            self.browser.player.stop()
+                            self.browser.video_widget.close()
+                        self.browser.close()
                     except:
-                        self.driver.close()
+                        self.browser.close()
 
 
 class VideoScreen(QWidget):
@@ -76,7 +76,7 @@ class VideoScreen(QWidget):
 
 
 class WebBrowser(QWebEngineView):
-    def __init__(self, url, parent=None):
+    def __init__(self, url, photos=False, parent=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.url = url
@@ -84,7 +84,8 @@ class WebBrowser(QWebEngineView):
         self.cute_url = self.cute_url.replace("http://", "")
         self.load(QUrl(self.url))
         self.show()
-        self.urlChanged.connect(self.url_change)
+        if not photos:
+            self.urlChanged.connect(self.url_change)
 
     def url_change(self, e):
         if self.cute_url not in e.host():

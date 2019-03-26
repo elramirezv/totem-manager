@@ -2,3 +2,4 @@ PyQt5
 selenium
 wxpython
 flask
+pyqtwebengine

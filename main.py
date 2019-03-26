@@ -19,6 +19,7 @@ class Window(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.background = QLabel(self)
         self.background.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -165,8 +166,8 @@ class Window(QWidget):
         cwd = os.getcwd()
         subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
         # QWait para que se alcance a cargar el servidor de app.py
-        QTest.qWait(1000)
         self.slideshow_window = QMainWindow()
+        self.slideshow_window.setWindowFlags(Qt.FramelessWindowHint)
         self.slideshow_window.setGeometry(0,0,col10,row10)
         self.slideshow_browser = WebBrowser("http://localhost:5000/")
         self.slideshow_window.setCentralWidget(self.slideshow_browser)
@@ -179,6 +180,7 @@ class Window(QWidget):
         self.web_name.setText("")
         if name != "":
             self.browser_window = QMainWindow()
+            self.browser_window.setWindowFlags(Qt.FramelessWindowHint)
             self.browser_window.setGeometry(0,0,col10,row10)
             self.web_browser = WebBrowser("https://"+name)
             self.browser_window.setCentralWidget(self.web_browser)

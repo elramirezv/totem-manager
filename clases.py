@@ -17,36 +17,39 @@ class SmallScreen(QWidget):
     Esta clase representa la pantalla pequeña que se crea para poder volver al programa
     si esque así fuera necesario.
     '''
-    def __init__(self, driver=None, parent = None):
+    def __init__(self, driver=None, parent = None, password = None):
         super().__init__(parent)
         self.setWindowOpacity(0.05)
         self.setGeometry(col9, row9, col, row)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.browser = driver
         self.count = []
-        self.small_button = QPushButton("", self)
-        self.small_button.setGeometry(0, 0, col, row)
-        self.small_button.clicked.connect(self.addNumber)
-        self.small_button.show()
+        self.password_editor = password
+        self.show()
 
-    def addNumber(self):
+    def mousePressEvent(self, event):
         if len(self.count) == 0:
             self.begin = time.time()
         self.count.append(1)
+        if time.time() - self.begin > 10:
+            self.count = [1]
+            self.begin = time.time()
         if len(self.count) >= 5:
-            if time.time() - self.begin > 10:
-                self.count = []
-                self.begin = time.time()
-            else:
-                self.close()
-                if self.browser:
-                    try:
-                        if isinstance(self.browser, QWidget):
-                            self.browser.player.stop()
-                            self.browser.video_widget.close()
-                        self.browser.close()
-                    except:
-                        self.browser.close()
+            self.count = []
+            self.begin = time.time()
+            self.password_editor.show()
+            self.password_editor.function = self.go_back
+
+    def go_back(self):
+        self.close()
+        if self.browser:
+            try:
+                if isinstance(self.browser, QWidget):
+                    self.browser.player.stop()
+                    self.browser.video_widget.close()
+                self.browser.close()
+            except:
+                self.browser.close()
 
 
 class VideoScreen(QWidget):
@@ -74,6 +77,72 @@ class VideoScreen(QWidget):
         for clip in self.clips:
             self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))
 
+class BlockerWindow(QWidget):
+    def __init__(self, parent = None):
+        super().__init__(None)
+        self.parent = parent
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowOpacity(0.05)
+        self.setGeometry(0,0,SCREEN_WIDTH, SCREEN_HEIGHT)
+
+
+
+class PasswordWindow(QWidget):
+    def __init__(self, function, parent = None):
+        super().__init__(parent)
+
+        self.blocker = BlockerWindow(self)
+        self.blocker.show()
+
+        self.function = function
+        self.setGeometry(col, row4, col8, row2 + row/2)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+
+        self.label = QLabel("Ingrese una contraseña", self)
+        self.label.setGeometry(col/2, row/3, col7, row/2)
+        self.label.setFont(QFont("Sans", 25))
+
+        self.editor = QLineEdit(self)
+        self.editor.setGeometry(col/2, row, col7, row/2)
+        self.editor.setFont(QFont("Sans",25))
+
+        self.boton = QPushButton("ACEPTAR", self)
+        self.boton.setGeometry(col, row + 2 * row/3, col6, row/2)
+        self.boton.clicked.connect(self.aceptar)
+        self.boton.setFont(QFont("Sans", 25))
+        self.boton.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+
+        self.password = None
+
+        self.timer  = QTimer(self)
+        self.timer.timeout.connect(self.reset)
+
+    def aceptar(self):
+        if self.password:
+            if self.editor.text() == self.password:
+                self.function()
+                self.hide()
+            else:
+                self.hide()
+        else:
+            self.password = self.editor.text()
+            self.editor.setText("")
+            self.function()
+            self.hide()
+
+    def reset(self):
+        self.editor.setText("")
+        self.hide()
+
+    def hide(self):
+        self.timer.stop()
+        self.blocker.hide()
+        super().hide()
+
+    def show(self):
+        self.timer.start(10000)
+        self.blocker.show()
+        super().show()
 
 class WebBrowser(QWebEngineView):
     def __init__(self, url, photos=False, parent=None):

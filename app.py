@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    images = ['/static/' + name for name in os.listdir(str(path)) if name.endswith(".jpg") or name.endswith(".png")]
+    images = ['/static/' + name for name in os.listdir(str(path)) if name.endswith(".jpg") or name.endswith(".png") or name.endswith(".svg")]
     # render_template va a buscar a la carpeta 'templates' por default
     return render_template('index.html', images=images)
 

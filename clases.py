@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
 from PyQt5.Qt import QTest, QTransform
 from PyQt5 import QtMultimedia, QtMultimediaWidgets
 from PyQt5.QtCore import QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
 from constants import *
 import os
 import time
@@ -47,8 +47,10 @@ class SmallScreen(QWidget):
                 if isinstance(self.browser, QWidget):
                     self.browser.player.stop()
                     self.browser.video_widget.close()
+                self.browser.load(QUrl(self.browser.url))
                 self.browser.close()
             except:
+                self.browser.load(QUrl(self.browser.url))
                 self.browser.close()
 
 
@@ -168,6 +170,8 @@ class WebBrowser(QWebEngineView):
     def __init__(self, url, photos=False, parent=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.settings().setAttribute(QWebEngineSettings.FullScreenSupportEnabled, True)
+        self.page().fullScreenRequested.connect(lambda request: request.accept())
         self.url = url
         self.cute_url = self.url.replace("https://", "")
         self.cute_url = self.cute_url.replace("http://", "")

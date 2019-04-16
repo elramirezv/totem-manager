@@ -77,6 +77,7 @@ class VideoScreen(QWidget):
         for clip in self.clips:
             self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))
 
+
 class BlockerWindow(QWidget):
     def __init__(self, parent = None):
         super().__init__(None)
@@ -85,6 +86,8 @@ class BlockerWindow(QWidget):
         self.setWindowOpacity(0.05)
         self.setGeometry(0,0,SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    def mousePressEvent(self, event):
+        self.parent.hide()
 
 
 class PasswordWindow(QWidget):
@@ -102,7 +105,7 @@ class PasswordWindow(QWidget):
         self.label.setGeometry(col/2, row/3, col7, row/2)
         self.label.setFont(QFont("Sans", 25))
 
-        self.editor = QLineEdit(self)
+        self.editor = PasswordEditor(self)
         self.editor.setGeometry(col/2, row, col7, row/2)
         self.editor.setFont(QFont("Sans",25))
 
@@ -140,9 +143,26 @@ class PasswordWindow(QWidget):
         super().hide()
 
     def show(self):
-        self.timer.start(10000)
+        self.timer.start(5000)
         self.blocker.show()
         super().show()
+
+
+class PasswordEditor(QLineEdit):
+
+    def __init__(self, parent = None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        self.parent().timer.stop()
+        self.parent().timer.start(5000)
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self.parent().timer.stop()
+        self.parent().timer.start(5000)
+
 
 class WebBrowser(QWebEngineView):
     def __init__(self, url, photos=False, parent=None):

@@ -12,6 +12,16 @@ from constants import *
 import os
 import time
 
+
+class MainWindow(QMainWindow):
+    def __init__(self, widget, parent = None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setGeometry(0,0,col10,row10)
+        self.widget = widget
+        self.setCentralWidget(self.widget)
+
+
 class SmallScreen(QWidget):
     '''
     Esta clase representa la pantalla pequeña que se crea para poder volver al programa
@@ -47,10 +57,9 @@ class SmallScreen(QWidget):
                 if isinstance(self.browser, QWidget):
                     self.browser.player.stop()
                     self.browser.video_widget.close()
-                self.browser.load(QUrl(self.browser.url))
                 self.browser.close()
             except:
-                self.browser.load(QUrl(self.browser.url))
+                self.browser.widget.close()
                 self.browser.close()
 
 

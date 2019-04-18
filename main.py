@@ -180,7 +180,7 @@ class Window(QWidget):
             subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
             self.processing_photos = True
             # QWait para que se alcance a cargar el servidor de app.py
-            QTest.qWait(3000)
+            QTest.qWait(4000)
             self.processing_photos = False
             self.slideshow_browser = WebBrowser("http://localhost:5000/")
             self.slideshow_window = MainWindow(self.slideshow_browser)

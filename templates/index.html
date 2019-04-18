@@ -17,14 +17,8 @@
 </head>
 {% endblock %}
 
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-  <!-- ... -->
-</div>
-{% endblock %}
-
 {% block content %}
-<div class="carousel slide" data-ride="carousel" data-interval="3000" data-pause="false">
+<div class="carousel slide" data-ride="carousel" data-interval="4000" data-pause="false">
   <div class="carousel-inner">
 {% for value in images %}
   {%- if loop.first -%}

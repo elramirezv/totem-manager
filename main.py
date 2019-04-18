@@ -5,10 +5,9 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
     QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
 from PyQt5.Qt import QTest, QTransform, QSound
-from clases import SmallScreen, VideoScreen, WebBrowser, PasswordWindow
+from clases import SmallScreen, VideoScreen, WebBrowser, PasswordWindow, MainWindow
 from constants import *
 import time
-from selenium import webdriver
 import subprocess
 import os
 import shutil
@@ -185,11 +184,7 @@ class Window(QWidget):
         name = self.web_name.text()
         self.web_name.setText("")
         if name != "":
-            self.browser_window = QMainWindow()
-            self.browser_window.setWindowFlags(Qt.FramelessWindowHint)
-            self.browser_window.setGeometry(0,0,col10,row10)
-            self.web_browser = WebBrowser("https://"+name)
-            self.browser_window.setCentralWidget(self.web_browser)
+            self.browser_window = MainWindow(WebBrowser("https://"+name))
             self.browser_window.show()
             self.small_icon = SmallScreen(self.browser_window, password = self.password_editor)
             self.small_icon.show()

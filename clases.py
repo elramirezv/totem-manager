@@ -73,7 +73,7 @@ class VideoScreen(QWidget):
         self.setGeometry(0, 0, col10, row10)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute( Qt.WA_NoSystemBackground, True)
-        self.clips = ["{}/{}".format(ddir,name) for name in os.listdir(str(ddir)) if name.endswith(".mp4")]
+        self.clips = ["{}/{}".format(ddir,name) for name in os.listdir(str(ddir)) if name.endswith(".mp4") or name.endswith('.mkv')]
         self.video_widget = QtMultimediaWidgets.QVideoWidget()
         self.video_widget.setGeometry(0, 0, col10, row10)
         self.player = QtMultimedia.QMediaPlayer()

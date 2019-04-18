@@ -30,6 +30,7 @@ class Window(QWidget):
         self.setting_videos_menu()
         self.setting_photos_menu()
         subprocess.Popen('mkdir static',stdout=subprocess.PIPE, shell=True)
+        self.processing_photos =False
 
     def create_password(self, function):
         self.password_editor = PasswordWindow(function)
@@ -38,7 +39,14 @@ class Window(QWidget):
 
     def setting_main_menu(self):
         # Setea todos los botones del menú principal (solamente los crea)
-        self.url_main_button = QPushButton("", self.main_layout)
+        self.close_button = QPushButton(self.main_layout)
+        self.close_button.setGeometry(col9, row/4, col/3, col/3)
+        self.close_button.setIcon(QIcon("images/close.png"))
+        self.close_button.setIconSize(QSize(col/3, col/3))
+        self.close_button.setStyleSheet("background: transparent")
+        self.close_button.clicked.connect(exit)
+
+        self.url_main_button = QPushButton(self.main_layout)
         self.url_main_button.setGeometry(col4 + col/2, row4 + row/2, col, col)
         self.url_main_button.setIcon(QIcon("images/url.svg"))
         self.url_main_button.setIconSize(QSize(col, col))
@@ -145,12 +153,13 @@ class Window(QWidget):
 
 
     def display_video_player(self):
-        self.video_player = VideoScreen(self.ddir)
-        self.video_player.show()
-        self.small_icon = SmallScreen(driver=self.video_player, password = self.password_editor)
-        self.small_icon.show()
-        self.small_icon.activateWindow()
-        self.video_player.player.play()
+        if not self.processing_photos:
+            self.video_player = VideoScreen(self.ddir)
+            self.video_player.show()
+            self.small_icon = SmallScreen(driver=self.video_player, password = self.password_editor)
+            self.small_icon.show()
+            self.small_icon.activateWindow()
+            self.video_player.player.play()
 
     def load_photos(self):
         self.ddir = QFileDialog.getExistingDirectory(self)
@@ -166,29 +175,31 @@ class Window(QWidget):
         self.photo_play_button.hide()
 
     def display_slideshow(self):
-        cwd = os.getcwd()
-        subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
-        # QWait para que se alcance a cargar el servidor de app.py
-        QTest.qWait(3000)
-        self.slideshow_window = QMainWindow()
-        self.slideshow_window.setWindowFlags(Qt.FramelessWindowHint)
-        self.slideshow_window.setGeometry(0,0,col10,row10)
-        self.slideshow_browser = WebBrowser("http://localhost:5000/")
-        self.slideshow_window.setCentralWidget(self.slideshow_browser)
-        self.slideshow_window.show()
-        self.small_icon = SmallScreen(driver=self.slideshow_window, password = self.password_editor)
-        self.small_icon.show()
-        self.small_icon.activateWindow()
-
-    def openBrowser(self):
-        name = self.web_name.text()
-        self.web_name.setText("")
-        if name != "":
-            self.browser_window = MainWindow(WebBrowser("https://"+name))
-            self.browser_window.show()
-            self.small_icon = SmallScreen(self.browser_window, password = self.password_editor)
+        if not self.processing_photos:
+            cwd = os.getcwd()
+            subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
+            self.processing_photos = True
+            # QWait para que se alcance a cargar el servidor de app.py
+            QTest.qWait(3000)
+            self.processing_photos = False
+            self.slideshow_browser = WebBrowser("http://localhost:5000/")
+            self.slideshow_window = MainWindow(self.slideshow_browser)
+            self.slideshow_window.setWindowFlags(Qt.FramelessWindowHint)
+            self.slideshow_window.show()
+            self.small_icon = SmallScreen(driver=self.slideshow_window, password = self.password_editor)
             self.small_icon.show()
             self.small_icon.activateWindow()
+
+    def openBrowser(self):
+        if not self.processing_photos:
+            name = self.web_name.text()
+            self.web_name.setText("")
+            if name != "":
+                self.browser_window = MainWindow(WebBrowser("https://"+name))
+                self.browser_window.show()
+                self.small_icon = SmallScreen(self.browser_window, password = self.password_editor)
+                self.small_icon.show()
+                self.small_icon.activateWindow()
 
 
 if __name__ == "__main__":

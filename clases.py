@@ -59,6 +59,7 @@ class SmallScreen(QWidget):
                     self.browser.video_widget.close()
                 self.browser.close()
             except:
+                self.browser.widget.load(QUrl("https://www.google.com"))
                 self.browser.widget.close()
                 self.browser.close()
 

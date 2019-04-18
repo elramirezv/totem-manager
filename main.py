@@ -9,7 +9,6 @@ from clases import SmallScreen, VideoScreen, WebBrowser, PasswordWindow
 from constants import *
 import time
 from selenium import webdriver
-from driver_options import options, chromedriver_path
 import subprocess
 import os
 import shutil

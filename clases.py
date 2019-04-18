@@ -171,11 +171,18 @@ class WebBrowser(QWebEngineView):
         self.url = url
         self.cute_url = self.url.replace("https://", "")
         self.cute_url = self.cute_url.replace("http://", "")
+        self.current_url = None
         self.load(QUrl(self.url))
         self.show()
         if not photos:
             self.urlChanged.connect(self.url_change)
 
     def url_change(self, e):
-        if self.cute_url not in e.host():
             self.load(QUrl(self.url))
+
+    def load(self, url):
+        if url.url() == self.current_url:
+            pass
+        else:
+            self.current_url = url.url()
+            super().load(url)

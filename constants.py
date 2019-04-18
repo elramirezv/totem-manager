@@ -3,8 +3,8 @@ import wx
 app = wx.App(False)
 SCREEN_WIDTH, SCREEN_HEIGHT = wx.GetDisplaySize()
 
-SCREEN_WIDTH*=1
-SCREEN_HEIGHT*=1
+SCREEN_WIDTH*=1.5
+SCREEN_HEIGHT*=1.5
 
 row, col = (SCREEN_HEIGHT*0.1, SCREEN_WIDTH*0.1)
 col1, col2, col3, col4, col5, col6, col7, col8, col9, col10 = [col * x for x in range(1, 11)]

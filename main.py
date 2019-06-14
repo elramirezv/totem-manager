@@ -5,17 +5,20 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QSize, Qt, QThread, \
 from PyQt5.QtWidgets import QLabel, QWidget, QMainWindow, QApplication, \
     QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QGroupBox, QFileDialog
 from PyQt5.Qt import QTest, QTransform, QSound
-from clases import SmallScreen, VideoScreen, WebBrowser, PasswordWindow, MainWindow
+from clases import SmallScreen, VideoScreen, WebBrowser, PasswordWindow, MainWindow, PhotoViewer
 from constants import *
 import time
 import subprocess
 import os
 import shutil
 import stat
+import sys
+from PIL import Image
 
 class Window(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.time_interval = 0.05
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -29,9 +32,7 @@ class Window(QWidget):
         self.setting_url_menu()
         self.setting_videos_menu()
         self.setting_photos_menu()
-        subprocess.Popen('mkdir static',stdout=subprocess.PIPE, shell=True)
         self.processing_photos =False
-
     def create_password(self, function):
         self.password_editor = PasswordWindow(function)
         self.password_editor.show()
@@ -95,8 +96,35 @@ class Window(QWidget):
         self.web_label.setGeometry(0, row2, col10, row)
         self.web_label.setAlignment(Qt.AlignCenter)
         self.web_label.setFont(QFont("Sans", 35))
+        self.time_edit = QLabel(str(self.time_interval) + "s", self.photo_layout)
+        self.time_edit.setFont(QFont("Sans" , 20))
+        self.time_edit.setGeometry(col4, row5 + row/2, col2, row/2)
+        self.time_edit.setAlignment(Qt.AlignCenter)
+        self.time_edit.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.add_time = QPushButton('+ 0.1s', self.photo_layout)
+        self.add_time.setFont(QFont("Sans", 15))
+        self.add_time.setGeometry(col6 + col2/8, row5 + row/2, col, row/2)
+        self.add_time.clicked.connect(lambda: self.change_interval(0.1))
+        self.add_time.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.add_time2 = QPushButton('+ 1.0s', self.photo_layout)
+        self.add_time2.setFont(QFont("Sans", 15))
+        self.add_time2.setGeometry(col7 + col4/8, row5 + row/2, col, row/2)
+        self.add_time2.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.add_time2.clicked.connect(lambda: self.change_interval(1))
+        self.sub_time = QPushButton('- 0.1s', self.photo_layout)
+        self.sub_time.setFont(QFont("Sans", 15))
+        self.sub_time.setGeometry(col2 + col6/8, row5 + row/2, col, row/2)
+        self.sub_time.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.sub_time.clicked.connect(lambda: self.change_interval(-0.1))
+        self.sub_time.setEnabled(False)
+        self.sub_time2 = QPushButton('- 1.0s', self.photo_layout)
+        self.sub_time2.setFont(QFont("Sans", 15))
+        self.sub_time2.setGeometry(col + col4/8, row5 + row/2, col, row/2)
+        self.sub_time2.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.sub_time2.clicked.connect(lambda: self.change_interval(-1))
+        self.sub_time2.setEnabled(False)
         self.load_button = QPushButton("CARGAR", self.photo_layout)
-        self.load_button.setFont(QFont("Sans", 25))
+        self.load_button.setFont(QFont("Sans", 35))
         self.load_button.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
         self.load_button.setGeometry(col, row3 + row/2, col8, row/2)
         self.load_button.clicked.connect(self.load_photos)
@@ -107,6 +135,21 @@ class Window(QWidget):
         self.photo_play_button.clicked.connect(lambda: self.create_password(self.display_slideshow))
         self.photo_play_button.hide()
         self.display_back_button(self.photo_layout)
+
+    def change_interval(self, value):
+        if self.time_interval == 0.05:
+            self.time_interval = value
+        else:
+            self.time_interval += value
+        self.time_interval = round(self.time_interval, 2)
+        self.sub_time.setEnabled(True)
+        self.sub_time2.setEnabled(True)
+        if self.time_interval < 1:
+            self.sub_time2.setEnabled(False)
+            if self.time_interval == 0:
+                self.sub_time.setEnabled(False)
+                self.time_interval = 0.05
+        self.time_edit.setText(str(self.time_interval) + 's')
 
     def setting_videos_menu(self):
         # Setea el layout del menu de videos
@@ -163,9 +206,6 @@ class Window(QWidget):
 
     def load_photos(self):
         self.ddir = QFileDialog.getExistingDirectory(self)
-        cwd = os.getcwd()
-        subprocess.Popen('del /q "{}/static"'.format(cwd), stdout=subprocess.PIPE, shell=True)
-        subprocess.Popen('xcopy "{}" "{}/static" /E'.format(self.ddir, cwd), stdout=subprocess.PIPE)
         self.video_play_button.hide()
         self.photo_play_button.show()
 
@@ -177,18 +217,22 @@ class Window(QWidget):
     def display_slideshow(self):
         if not self.processing_photos:
             cwd = os.getcwd()
-            subprocess.Popen('python app.py {}'.format(cwd + '/static'), stdout=subprocess.PIPE)
-            self.processing_photos = True
-            # QWait para que se alcance a cargar el servidor de app.py
-            QTest.qWait(4000)
-            self.processing_photos = False
-            self.slideshow_browser = WebBrowser("http://localhost:5000/")
-            self.slideshow_window = MainWindow(self.slideshow_browser)
-            self.slideshow_window.setWindowFlags(Qt.FramelessWindowHint)
+            photos = os.listdir(self.ddir)
+            photos = [x for x in photos if x.endswith('.jpg') or x.endswith('.png') or x.endswith('.jpeg')]
+            self.slideshow_window = PhotoViewer(self, photos, self.time_interval)
             self.slideshow_window.show()
-            self.small_icon = SmallScreen(driver=self.slideshow_window, password = self.password_editor)
+            self.small_icon = SmallScreen(driver=self.slideshow_window, password = self.password_editor, photos= True)
             self.small_icon.show()
             self.small_icon.activateWindow()
+
+    def change_slideshow(self, image):
+        image = self.ddir + '/' + image
+        im = Image.open(image)
+        w,h = im.size
+        while w > SCREEN_WIDTH or h > SCREEN_HEIGHT:
+            w *= 0.95
+            h *= 0.95
+        self.slideshow_window.label.setPixmap(QPixmap(image).scaled(w,h))
 
     def openBrowser(self):
         if not self.processing_photos:
@@ -200,6 +244,7 @@ class Window(QWidget):
                 self.small_icon = SmallScreen(self.browser_window, password = self.password_editor)
                 self.small_icon.show()
                 self.small_icon.activateWindow()
+
 
 
 if __name__ == "__main__":

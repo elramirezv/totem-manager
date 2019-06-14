@@ -21,13 +21,43 @@ class MainWindow(QMainWindow):
         self.widget = widget
         self.setCentralWidget(self.widget)
 
+class PhotoViewer(QWidget):
+    def __init__(self, parent, photos, time_interval):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setStyleSheet('background-color:black')
+        self.setGeometry(0, 0,SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.label = QLabel(self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setGeometry(0,0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self._curr_img = 0
+        self.images = photos
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.next_image)
+        self.timer.start(time_interval * 1000)
+
+    @property
+    def curr_img(self):
+        return self._curr_img
+
+    @curr_img.setter
+    def curr_img(self, value):
+        if value >= len(self.images):
+            self._curr_img = 0
+        else:
+            self._curr_img = value
+
+    def next_image(self):
+        self.curr_img += 1
+        self.parent().change_slideshow(self.images[self.curr_img])
+
 
 class SmallScreen(QWidget):
     '''
     Esta clase representa la pantalla pequeña que se crea para poder volver al programa
     si esque así fuera necesario.
     '''
-    def __init__(self, driver=None, parent = None, password = None):
+    def __init__(self, driver=None, parent = None, password = None, photos = False):
         super().__init__(parent)
         self.setWindowOpacity(0.05)
         self.setGeometry(col9, row9, col, row)
@@ -35,6 +65,7 @@ class SmallScreen(QWidget):
         self.browser = driver
         self.count = []
         self.password_editor = password
+        self.photos = photos
         self.show()
 
     def mousePressEvent(self, event):
@@ -52,7 +83,10 @@ class SmallScreen(QWidget):
 
     def go_back(self):
         self.close()
-        if self.browser:
+        if self.photos:
+            self.browser.timer.stop()
+            self.browser.close()
+        elif self.browser:
             try:
                 if isinstance(self.browser, QWidget):
                     self.browser.player.stop()

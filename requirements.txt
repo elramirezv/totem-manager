@@ -3,3 +3,4 @@ selenium
 wxpython
 flask
 pyqtwebengine
+pillow

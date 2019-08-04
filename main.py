@@ -86,6 +86,12 @@ class Window(QWidget):
         self.accept_button.setFont(QFont("Sans", 20))
         self.accept_button.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
         self.accept_button.clicked.connect(lambda: self.create_password(self.openBrowser))
+        self.html_button = QPushButton('Usar Html local', self.url_layout)
+        self.html_button.setGeometry(col4, row5 + row/2, col2, row/2)
+        self.html_button.setFont(QFont("Sans", 20))
+        self.html_button.setStyleSheet("background-color: rgb(200, 200, 200); border-radius: 30px")
+        self.html_button.clicked.connect(self.loadhtml)
+
         self.display_back_button(self.url_layout)
 
     def setting_photos_menu(self):
@@ -209,6 +215,12 @@ class Window(QWidget):
         self.video_play_button.hide()
         self.photo_play_button.show()
 
+    def loadhtml(self):
+        self.ddir = QFileDialog.getOpenFileName(self)[0]
+        print(self.ddir)
+        self.video_play_button.hide()
+        self.create_password(self.open_html)
+
     def load_video(self):
         self.ddir = QFileDialog.getExistingDirectory(self)
         self.video_play_button.show()
@@ -217,9 +229,9 @@ class Window(QWidget):
     def display_slideshow(self):
         if not self.processing_photos:
             cwd = os.getcwd()
-            photos = os.listdir(self.ddir)
-            photos = [x for x in photos if x.endswith('.jpg') or x.endswith('.png') or x.endswith('.jpeg')]
-            self.slideshow_window = PhotoViewer(self, photos, self.time_interval)
+            dir = os.listdir(self.ddir)
+            photos = [x for x in dir if x.endswith('.jpg') or x.endswith('.png') or x.endswith('.jpeg')]
+            self.slideshow_window = PhotoViewer(self, photos, self.time_interval, self.ddir)
             self.slideshow_window.show()
             self.small_icon = SmallScreen(driver=self.slideshow_window, password = self.password_editor, photos= True)
             self.small_icon.show()
@@ -233,6 +245,17 @@ class Window(QWidget):
             w *= 0.95
             h *= 0.95
         self.slideshow_window.label.setPixmap(QPixmap(image).scaled(w,h))
+
+    def open_html(self):
+        if not self.processing_photos:
+            fileName = self.ddir
+            if fileName:
+                self.browser_window = MainWindow(WebBrowser(fileName, local = True))
+                self.browser_window.show()
+                self.small_icon = SmallScreen(self.browser_window, password = self.password_editor)
+                self.small_icon.show()
+                self.small_icon.activateWindow()
+
 
     def openBrowser(self):
         if not self.processing_photos:

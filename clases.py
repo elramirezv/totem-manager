@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.widget)
 
 class PhotoViewer(QWidget):
-    def __init__(self, parent, photos, time_interval):
+    def __init__(self, parent, photos, time_interval, dir):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet('background-color:black')
@@ -35,6 +35,14 @@ class PhotoViewer(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_image)
         self.timer.start(time_interval * 1000)
+        self.photo_timer = QTimer(self)
+        self.photo_timer.timeout.connect(self.check_photos)
+        self.photo_timer.start(5000)
+        self.ddir = dir
+
+    def check_photos(self):
+        photos = os.listdir(self.ddir)
+        self.images = [x for x in photos if x.endswith('.jpg') or x.endswith('.png') or x.endswith('.jpeg')]
 
     @property
     def curr_img(self):
@@ -49,7 +57,10 @@ class PhotoViewer(QWidget):
 
     def next_image(self):
         self.curr_img += 1
-        self.parent().change_slideshow(self.images[self.curr_img])
+        try:
+            self.parent().change_slideshow(self.images[self.curr_img])
+        except FileNotFoundError:
+            self.check_photos()
 
 
 class SmallScreen(QWidget):
@@ -107,6 +118,7 @@ class VideoScreen(QWidget):
         self.setGeometry(0, 0, col10, row10)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute( Qt.WA_NoSystemBackground, True)
+        self.ddir = ddir
         self.clips = ["{}/{}".format(ddir,name) for name in os.listdir(str(ddir)) if name.endswith(".mp4") or name.endswith('.mkv')]
         self.video_widget = QtMultimediaWidgets.QVideoWidget()
         self.video_widget.setGeometry(0, 0, col10, row10)
@@ -118,6 +130,16 @@ class VideoScreen(QWidget):
         self.addMedia()
         self.playlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
         self.player.setPlaylist(self.playlist)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_videos)
+        self.timer.start(10000)
+
+    def check_videos(self):
+        clips = ["{}/{}".format(self.ddir,name) for name in os.listdir(str(self.ddir)) if name.endswith(".mp4") or name.endswith('.mkv')]
+        for clip in clips:
+            if clip not in self.clips:
+                self.playlist.addMedia(QtMultimedia.QMediaContent(QUrl.fromLocalFile(clip)))
+        self.clips = clips
 
     def addMedia(self):
         for clip in self.clips:
@@ -211,21 +233,29 @@ class PasswordEditor(QLineEdit):
 
 
 class WebBrowser(QWebEngineView):
-    def __init__(self, url, photos=False, parent=None):
+    def __init__(self, url, photos=False, parent=None, local=False):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.settings().setAttribute(QWebEngineSettings.FullScreenSupportEnabled, True)
         self.page().fullScreenRequested.connect(lambda request: request.accept())
-        self.url = url
-        self.cute_url = self.url.replace("https://", "")
-        self.cute_url = self.cute_url.replace("http://", "")
-        self.current_url = None
-        self.load(QUrl(self.url))
-        self.show()
+        self.local = local
+        if not local:
+            self.url = url
+            self.cute_url = self.url.replace("https://", "")
+            self.cute_url = self.cute_url.replace("http://", "")
+            self.current_url = None
+            self.load(QUrl(self.url))
+            self.show()
+        else:
+            local_url = QUrl.fromLocalFile(url)
+            self.url = local_url
+            self.current_url = None
+            self.load(self.url)
         if not photos:
             self.urlChanged.connect(self.url_change)
 
     def url_change(self, e):
+        if not self.local:
             self.load(QUrl(self.url))
 
     def load(self, url):
